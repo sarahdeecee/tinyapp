@@ -26,6 +26,11 @@ app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
 });
 
+app.get("/urls/:shortURL", (req, res) => {
+  const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL] };
+  res.render("urls_show", templateVars);
+});
+
 app.get("/hello", (req, res) => {
   res.send("<html><body>Hello <i>World</i></body></html>\n");
 });
