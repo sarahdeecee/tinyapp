@@ -12,7 +12,7 @@ const urlDatabase = {
 };
 
 app.get("/", (req, res) => {
-  res.send("Hello!");
+  res.redirect('/urls/new');
 });
 
 app.listen(PORT, () => {
@@ -27,9 +27,7 @@ app.get("/urls", (req, res) => {
 app.post("/urls", (req, res) => {
   let shortURL = generateRandomString();
   urlDatabase[shortURL] = req.body.longURL;
-  console.log(urlDatabase);
   res.redirect(`/urls/${shortURL}`);
-  // res.send("Ok");         // Response
 });
 
 app.get("/urls.json", (req, res) => {
@@ -51,10 +49,6 @@ app.get("/u/:shortURL", (req, res) => {
   const longURL = urlDatabase[shortURL];
   console.log(longURL);
   res.redirect(longURL);
-});
-
-app.get("/hello", (req, res) => {
-  res.send("<html><body>Hello <i>World</i></body></html>\n");
 });
 
 function generateRandomString() {
