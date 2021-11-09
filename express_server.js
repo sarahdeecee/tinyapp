@@ -24,31 +24,44 @@ app.get("/urls", (req, res) => {
   res.render("urls_index", templateVars);
 });
 
+app.get("/urls.json", (req, res) => {
+  res.json(urlDatabase);
+});
+
+// Create new shortURL, redirect to shortURL
 app.post("/urls", (req, res) => {
   let shortURL = generateRandomString();
   urlDatabase[shortURL] = req.body.longURL;
   res.redirect(`/urls/${shortURL}`);
 });
 
-app.get("/urls.json", (req, res) => {
-  res.json(urlDatabase);
-});
-
+// Create New URL page
 app.get("/urls/new", (req, res) => {
   res.render("urls_new");
 });
 
+// new URL created
 app.get("/urls/:shortURL", (req, res) => {
   const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL] };
   res.render("urls_show", templateVars);
 });
 
+// update URL
+app.post("/urls/:shortURL", (req, res) => {
+  const shortURL = req.params.shortURL;
+  const longURL = req.body.longURL;
+  urlDatabase[shortURL] = longURL;
+  res.redirect('/urls');
+});
+
+//delete shortURL
 app.post("/urls/:shortURL/delete", (req, res) => {
   const shortURL = req.params.shortURL;
   delete urlDatabase[shortURL];
   res.redirect('/urls');
 });
 
+//redirect to shortURL
 app.get("/u/:shortURL", (req, res) => {
   shortURL = req.params.shortURL;
   const longURL = urlDatabase[shortURL];
@@ -63,9 +76,6 @@ function generateRandomString() {
   let passLength = 6;
   for (let i = 0; i < passLength; i++) {
     let randomNum = Math.floor(Math.random() * 36) + 48;
-    // if (randomNum >= 84) {
-    //   randomNum += 13;
-    // }
     if (randomNum >= 58) {
       randomNum += 7;
     }
