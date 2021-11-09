@@ -43,6 +43,12 @@ app.get("/urls/:shortURL", (req, res) => {
   res.render("urls_show", templateVars);
 });
 
+app.post("/urls/:shortURL/delete", (req, res) => {
+  const shortURL = req.params.shortURL;
+  delete urlDatabase[shortURL];
+  res.redirect('/urls');
+});
+
 app.get("/u/:shortURL", (req, res) => {
   shortURL = req.params.shortURL;
   const longURL = urlDatabase[shortURL];
@@ -56,14 +62,14 @@ function generateRandomString() {
   let randomStr = "";
   let passLength = 6;
   for (let i = 0; i < passLength; i++) {
-    let randomNum = Math.floor(Math.random() * 59) + 48;
-    if (randomNum >= 84) {
-      randomNum += 13;
-    }
-    else if (randomNum >= 58) {
+    let randomNum = Math.floor(Math.random() * 36) + 48;
+    // if (randomNum >= 84) {
+    //   randomNum += 13;
+    // }
+    if (randomNum >= 58) {
       randomNum += 7;
     }
     randomStr += String.fromCharCode(randomNum);
   }
-  return randomStr;
+  return randomStr.toLowerCase();
 }
