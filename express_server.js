@@ -24,6 +24,11 @@ app.get("/urls", (req, res) => {
   res.render("urls_index", templateVars);
 });
 
+app.post("/urls", (req, res) => {
+  console.log(req.body);  // POST request body
+  res.send("Ok");         // Response
+});
+
 app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
 });
@@ -40,3 +45,21 @@ app.get("/urls/:shortURL", (req, res) => {
 app.get("/hello", (req, res) => {
   res.send("<html><body>Hello <i>World</i></body></html>\n");
 });
+
+function generateRandomString() {
+  let randomStr = "";
+  let passLength = 5;
+  for (let i = 0; i <= passLength; i++) {
+    let randomNum = Math.floor(Math.random() * 59) + 48;
+    if (randomNum >= 84) {
+      randomNum += 13;
+    }
+    else if (randomNum >= 58) {
+      randomNum += 7;
+    }
+    randomStr += String.fromCharCode(randomNum);
+  }
+  return randomStr;
+}
+
+console.log(generateRandomString());
