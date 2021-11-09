@@ -44,17 +44,18 @@ app.get("/urls/:shortURL", (req, res) => {
 });
 
 app.get("/u/:shortURL", (req, res) => {
-  console.log(req.params.shortURL);
   shortURL = req.params.shortURL;
   const longURL = urlDatabase[shortURL];
-  console.log(longURL);
+  if (longURL === undefined) {
+    res.render('urls_notfound');
+  }
   res.redirect(longURL);
 });
 
 function generateRandomString() {
   let randomStr = "";
-  let passLength = 5;
-  for (let i = 0; i <= passLength; i++) {
+  let passLength = 6;
+  for (let i = 0; i < passLength; i++) {
     let randomNum = Math.floor(Math.random() * 59) + 48;
     if (randomNum >= 84) {
       randomNum += 13;
