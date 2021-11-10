@@ -8,9 +8,13 @@
       <div class="navbar-nav">
         <a class="nav-item nav-link" href="/urls">My URLs</a>
         <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
-        <form class="form" method="POST" action="/login">
-          <input type="text" name="username"><input type="submit" value="Login"></p>
-        </form>
+      </div>
+      <div class="ml-auto">
+      <% if(!username){ %>
+        <form class="form-inline" method="POST" action="/login"><input type="text" name="username"> <input type="submit" value="Login" style="margin-left: 1em"></form>
+      <% } else if(username){ %>
+        <form class="form" method="POST" action="/logout">Welcome back, <strong><%= username %></strong>!<input type="submit" value="Logout" style="margin-left: 1em"></form>
+      <% } %>
       </div>
     </div>
   </nav>
