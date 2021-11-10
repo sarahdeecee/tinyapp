@@ -10,9 +10,12 @@
         <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
       </div>
       <div class="navbar-nav">
-        <a class="nav-item nav-link" href="/register">Register an Account</a>
-        <a class="nav-item nav-link" href="/login">Login</a>
-        
+        <% if(!user_id){ %>
+          <a class="nav-item nav-link" href="/register">Register an Account</a>
+          <a class="nav-item nav-link" href="/login">Login</a>
+        <% } else { %>
+          <form class="form" method="POST" action="/logout">Welcome back, <strong><%= email %></strong>!<input type="submit" value="Logout" style="margin-left: 1em"></form>
+        <% } %>
       </div>
     </div>
   </nav>

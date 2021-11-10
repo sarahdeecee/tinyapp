@@ -17,7 +17,7 @@ const users = {
   "userRandomID": {
     id: "userRandomID", 
     email: "user@example.com", 
-    password: "purple-monkey-dinosaur"
+    password: "123"
   },
  "user2RandomID": {
     id: "user2RandomID", 
@@ -37,7 +37,10 @@ app.listen(PORT, () => {
 
 // display URLs
 app.get("/urls", (req, res) => {
-  const templateVars = { urls: urlDatabase, username: req.cookies['username'] };
+  const templateVars = {
+    urls: urlDatabase,
+    user_id: req.cookies['user_id'],
+    email: getEmailFromId(req.cookies['user_id']) };
   res.render("urls_index", templateVars);
 });
 
@@ -55,10 +58,8 @@ app.post("/urls", (req, res) => {
 
 // Create New URL page
 app.get("/urls/new", (req, res) => {
-  const templateVars = { username: req.cookies['username'] }
-  // const templateVars = { id: req.cookies[id] };
+  const templateVars = { user_id: req.cookies['user_id'], email: getEmailFromId(req.cookies['user_id']) };
   res.render("urls_new", templateVars);
-  // res.render("urls_new");
 });
 
 // new URL created
@@ -66,8 +67,8 @@ app.get("/urls/:shortURL", (req, res) => {
   const templateVars = { 
     shortURL: req.params.shortURL,
     longURL: urlDatabase[req.params.shortURL],
-    username: req.cookies['username'],
-    // id: req.cookies[id]
+    user_id: req.cookies['user_id'],
+    email: getEmailFromId(req.cookies['user_id'])
   };
   res.render("urls_show", templateVars);
 });
@@ -91,7 +92,7 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 app.get("/u/:shortURL", (req, res) => {
   shortURL = req.params.shortURL;
   const longURL = urlDatabase[shortURL];
-  const templateVars = { username: req.cookies['username'] };
+  const templateVars = { user_id: req.cookies['user_id'], email: getEmailFromId(req.cookies['user_id']) };
   if (longURL === undefined) {
     res.render('urls_notfound', templateVars);
   }
@@ -100,54 +101,54 @@ app.get("/u/:shortURL", (req, res) => {
 
 // login
 app.post('/login', (req, res) => {
-  if (checkPassword(req.body.password)) {
-    res.cookie("username", req.body.username);  
-    res.redirect('/urls');
+  if (req.body.email === "") {
+    return res.status(400).send('Please enter an email');
+  } else if (req.body.password === "") {
+    return res.status(400).send('Please enter a password');
   }
+  let id = findUserByEmail(req.body.email);
+  if (!id) {
+    return res.status(403).send('Email not found. Please register for an account.');
+  } else if (!checkPassword(id, req.body.password)) {
+    return res.status(403).send('Password incorrect.');
+  }
+  res.cookie('user_id', id);
+  res.redirect('/urls');
 })
 
 // login page
 app.get('/login', (req, res) => {
-  res.render('login');
+  const templateVars = { user_id: req.cookies['user_id'], email: getEmailFromId(req.cookies['user_id']) };
+  res.render('login', templateVars);
 })
 
 // logout
 app.post('/logout', (req, res) => {
-  res.clearCookie("username");
+  res.clearCookie('user_id');
   res.redirect('/urls');
 })
 
 // register page
 app.get("/register", (req, res) => {
-  const templateVars = { username: req.cookies['username'] };
+  const templateVars = { user_id: req.cookies['user_id'] };
   res.render('register', templateVars);
 });
 
 //register a new user
 app.post('/register', (req, res) => {
   if (req.body.email === "") {
-    return res.status(400).send({
-      message: 'Please enter an email'
-    });
+    return res.status(400).send('Please enter an email');
   } else if (req.body.password === "") {
-    return res.status(400).send({
-      message: 'Please enter a password'
-    });
+    return res.status(400).send('Please enter a password');
   }
   let id = findUserByEmail(req.body.email);
-  if (!id) { //ok
+  if (!id) { //new user
     newId = generateRandomString();
     users[newId] = { id: newId, email: req.body.email, password: req.body.password }
-    console.log(users);
+    res.cookie("user_id", newId);
   } else {
     //check password
-    if (!checkPassword(req.body.password)) {
-      console.log('Wrong password');
-      return res.status(400).send({
-        message: 'Incorrect password'
-      });  
-    }
-    res.cookie("username", req.body.email);
+    return res.status(403).send('Account exists. Please login.');
   }
   res.redirect('/urls');
 })
@@ -179,4 +180,8 @@ const checkPassword = (id, password) => {
     return true;
   }
   return false;
+};
+
+const getEmailFromId = user_id => {
+  return (users[user_id]) ? users[user_id].email : null;
 };
