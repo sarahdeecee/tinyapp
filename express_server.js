@@ -37,7 +37,7 @@ app.listen(PORT, () => {
 
 // display URLs
 app.get("/urls", (req, res) => {
-  const templateVars = { urls: urlDatabase, id: req.cookies[id] };
+  const templateVars = { urls: urlDatabase, username: req.cookies['username'] };
   res.render("urls_index", templateVars);
 });
 
@@ -55,8 +55,10 @@ app.post("/urls", (req, res) => {
 
 // Create New URL page
 app.get("/urls/new", (req, res) => {
-  const templateVars = { id: req.cookies[id] };
+  const templateVars = { username: req.cookies['username'] }
+  // const templateVars = { id: req.cookies[id] };
   res.render("urls_new", templateVars);
+  // res.render("urls_new");
 });
 
 // new URL created
@@ -64,7 +66,9 @@ app.get("/urls/:shortURL", (req, res) => {
   const templateVars = { 
     shortURL: req.params.shortURL,
     longURL: urlDatabase[req.params.shortURL],
-    id: req.cookies[id] };
+    username: req.cookies['username'],
+    // id: req.cookies[id]
+  };
   res.render("urls_show", templateVars);
 });
 
@@ -87,7 +91,7 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 app.get("/u/:shortURL", (req, res) => {
   shortURL = req.params.shortURL;
   const longURL = urlDatabase[shortURL];
-  const templateVars = { id: req.cookies[id] };
+  const templateVars = { username: req.cookies['username'] };
   if (longURL === undefined) {
     res.render('urls_notfound', templateVars);
   }
@@ -96,7 +100,8 @@ app.get("/u/:shortURL", (req, res) => {
 
 // login
 app.post('/login', (req, res) => {
-  res.cookie("username", req.body.username);
+  // res.cookie("id", req.body.id);
+  res.cookie("username", req.body.username);  
   res.redirect('/urls');
 })
 
@@ -106,17 +111,25 @@ app.post('/logout', (req, res) => {
   res.redirect('/urls');
 })
 
-//register page
+// register page
 app.get("/register", (req, res) => {
-  const templateVars = { id: req.cookies[id] };
+  const templateVars = { username: req.cookies['username'] };
   res.render('register', templateVars);
 });
 
 //register a new user
 app.post('/register', (req, res) => {
-  newId = generateRandomString();
-  users[newId] = { id: newId, email: req.body.email, password: req.body.password }
-  res.cookie(newId);
+  let id = findUserByEmail(req.body.email);
+  if (!id) { //ok
+    newId = generateRandomString();
+    users[newId] = { id: newId, email: req.body.email, password: req.body.password }
+    console.log(users);
+  } else {
+    //check password
+    console.log('Account already exists');
+    res.send('<h3>Account already exists</h3>');
+  }
+  // res.cookie("id", newId);
   res.redirect('/urls');
 })
 
@@ -134,11 +147,19 @@ function generateRandomString() {
 }
 
 const findUserByEmail = email => {
-  for (let user in users) {
-    console.log('key --->', user);
-    // if (users[key].email === email) {
-    //   return users[key];
-    // }
+  for (let id in users) {
+    if (users[id].email === email) {
+      return id;
+    }
   }
   return null;
-}
+};
+
+const checkPassword = password => {
+  for (let id in users) {
+    if (users[id].password === password) {
+      return true;
+    }
+  }
+  return false;
+};
