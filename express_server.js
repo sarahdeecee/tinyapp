@@ -119,6 +119,15 @@ app.get("/register", (req, res) => {
 
 //register a new user
 app.post('/register', (req, res) => {
+  if (req.body.email === "") {
+    return res.status(400).send({
+      message: 'Please enter an email'
+    });
+  } else if (req.body.password === "") {
+    return res.status(400).send({
+      message: 'Please enter a password'
+    });
+  }
   let id = findUserByEmail(req.body.email);
   if (!id) { //ok
     newId = generateRandomString();
@@ -126,10 +135,14 @@ app.post('/register', (req, res) => {
     console.log(users);
   } else {
     //check password
-    console.log('Account already exists');
-    res.send('<h3>Account already exists</h3>');
+    if (!checkPassword(req.body.password)) {
+      console.log('Wrong password');
+      return res.status(400).send({
+        message: 'Incorrect password'
+      });  
+    }
+    res.cookie("username", req.body.email);
   }
-  // res.cookie("id", newId);
   res.redirect('/urls');
 })
 
@@ -158,8 +171,8 @@ const findUserByEmail = email => {
 const checkPassword = password => {
   for (let id in users) {
     if (users[id].password === password) {
-      return true;
+      return id;
     }
   }
-  return false;
+  return null;
 };
