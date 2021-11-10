@@ -100,9 +100,15 @@ app.get("/u/:shortURL", (req, res) => {
 
 // login
 app.post('/login', (req, res) => {
-  // res.cookie("id", req.body.id);
-  res.cookie("username", req.body.username);  
-  res.redirect('/urls');
+  if (checkPassword(req.body.password)) {
+    res.cookie("username", req.body.username);  
+    res.redirect('/urls');
+  }
+})
+
+// login page
+app.get('/login', (req, res) => {
+  res.render('login');
 })
 
 // logout
@@ -168,11 +174,9 @@ const findUserByEmail = email => {
   return null;
 };
 
-const checkPassword = password => {
-  for (let id in users) {
-    if (users[id].password === password) {
-      return id;
-    }
+const checkPassword = (id, password) => {
+  if (users[id].password === password) {
+    return true;
   }
-  return null;
+  return false;
 };
