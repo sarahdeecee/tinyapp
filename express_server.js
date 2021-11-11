@@ -49,7 +49,7 @@ app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
 
-// display URLs //ok
+// display URLs
 app.get("/urls", (req, res) => {
   (req.cookies['user_id']) ? null : res.redirect('/login');
   const templateVars = {
@@ -64,7 +64,7 @@ app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
 });
 
-// Create new shortURL, redirect to shortURL //ok
+// Create new shortURL, redirect to shortURL
 app.post("/urls", (req, res) => {
   let shortURL = generateRandomString();
   urlDatabase[shortURL] = { longURL: req.body.longURL, userID: req.cookies['user_id'] };
@@ -78,7 +78,7 @@ app.get("/urls/new", (req, res) => {
   res.render("urls_new", templateVars);
 });
 
-// new URL created //ok
+// new URL created
 app.get("/urls/:shortURL", (req, res) => {
   (req.cookies['user_id']) ? null : res.redirect('/login');
   shortURL = req.params.shortURL;
@@ -92,8 +92,9 @@ app.get("/urls/:shortURL", (req, res) => {
   res.render("urls_show", templateVars);
 });
 
-// update URL //ok
+// update URL
 app.post("/urls/:shortURL", (req, res) => {
+  (req.cookies['user_id'] === urlDatabase[shortURL].userID) ? null : res.render('noaccess');
   const shortURL = req.params.shortURL;
   const newLongURL = req.body.longURL;
   urlDatabase[shortURL].longURL = newLongURL;
@@ -101,9 +102,10 @@ app.post("/urls/:shortURL", (req, res) => {
   res.redirect('/urls');
 });
 
-// delete shortURL //ok
+// delete shortURL
 app.post("/urls/:shortURL/delete", (req, res) => {
   const shortURL = req.params.shortURL;
+  (req.cookies['user_id'] === urlDatabase[shortURL].userID) ? null : res.render('noaccess');
   delete urlDatabase[shortURL];
   res.redirect('/urls');
 });
