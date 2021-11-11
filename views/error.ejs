@@ -3,7 +3,7 @@
 <head>
   <!-- Bootstrap CSS -->
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
-  <title>403 No Access - TinyApp Example</title>
+  <title>400 Bad Request - TinyApp Example</title>
 </head>
 <body>
   <header>
@@ -12,8 +12,8 @@
   <div class="card text-center">
       <div class="card-header"></div>
       <div class="card-body">
-        <h5 class="card-title">Access denied.</h5>
-        <p class="card-text">Please <a href="/login">login</a> to access TinyURLs.</p>
+        <h5 class="card-title">Login failed.</h5>
+        <p class="card-text"><%= message %></p>
       </div>
     <div class="card-footer text-muted"></div>
   </div>

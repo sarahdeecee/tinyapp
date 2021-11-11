@@ -13,8 +13,8 @@
     <%- include('partials/_header') %>
   </header>
   <main style="margin: 1em;">
-    <h3>My URLs</h3>
-    <table class="table">
+    <h3 class="text-center">My URLs</h3>
+    <table class="table text-center">
       <thead>
         <tr>
           <th scope="col">Short URL</th>
@@ -26,10 +26,10 @@
       <tbody>
         <% for(let url of urls) { %>
           <tr>
-            <td><%= url.shortURL %></td>
+            <td><a href="/u/<%= url.shortURL %>" target="_blank"><%= url.shortURL %></a></td>
             <td><%= url.longURL %></td>
-            <td><form method="GET" action="/urls/<%= url.shortURL %>"><input type="submit" value="Edit"></form></td>
-            <td><form method="POST" action="/urls/<%= url.shortURL %>/delete"><input type="submit" value="Delete"></form></td>
+            <td><form method="GET" action="/urls/<%= url.shortURL %>"><input class="btn btn-info btn-sm" type="submit" value="Edit"></form></td>
+            <td><form method="POST" action="/urls/<%= url.shortURL %>/delete"><input class="btn btn-outline-dark btn-sm" type="submit" value="Delete"></form></td>
           </tr>
         <% } %>
       </tbody>
