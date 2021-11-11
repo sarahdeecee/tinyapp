@@ -49,7 +49,7 @@ app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
 
-// display URLs
+// display URLs //ok
 app.get("/urls", (req, res) => {
   (req.cookies['user_id']) ? null : res.redirect('/login');
   const templateVars = {
@@ -64,10 +64,10 @@ app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
 });
 
-// Create new shortURL, redirect to shortURL
+// Create new shortURL, redirect to shortURL //ok
 app.post("/urls", (req, res) => {
   let shortURL = generateRandomString();
-  urlDatabase[shortURL] = req.body.longURL;
+  urlDatabase[shortURL] = { longURL: req.body.longURL, userID: req.cookies['user_id'] };
   res.redirect(`/urls/${shortURL}`);
 });
 
@@ -78,27 +78,30 @@ app.get("/urls/new", (req, res) => {
   res.render("urls_new", templateVars);
 });
 
-// new URL created
+// new URL created //ok
 app.get("/urls/:shortURL", (req, res) => {
   (req.cookies['user_id']) ? null : res.redirect('/login');
+  shortURL = req.params.shortURL;
   const templateVars = { 
-    shortURL: req.params.shortURL,
-    longURL: urlDatabase[req.params.shortURL],
+    shortURL: shortURL,
+    longURL: urlDatabase[shortURL].longURL,
     user_id: req.cookies['user_id'],
     email: getEmailFromId(req.cookies['user_id'])
   };
+  console.log(templateVars);
   res.render("urls_show", templateVars);
 });
 
-// update URL
+// update URL //ok
 app.post("/urls/:shortURL", (req, res) => {
   const shortURL = req.params.shortURL;
-  const longURL = req.body.longURL;
-  urlDatabase[shortURL] = longURL;
+  const newLongURL = req.body.longURL;
+  urlDatabase[shortURL].longURL = newLongURL;
+  console.log(urlDatabase[shortURL]);
   res.redirect('/urls');
 });
 
-// delete shortURL
+// delete shortURL //ok
 app.post("/urls/:shortURL/delete", (req, res) => {
   const shortURL = req.params.shortURL;
   delete urlDatabase[shortURL];
@@ -108,7 +111,7 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 // redirect to shortURL
 app.get("/u/:shortURL", (req, res) => {
   shortURL = req.params.shortURL;
-  const longURL = urlDatabase[shortURL];
+  const longURL = urlDatabase[shortURL].longURL;
   const templateVars = { user_id: req.cookies['user_id'], email: getEmailFromId(req.cookies['user_id']) };
   if (longURL === undefined) {
     res.render('urls_notfound', templateVars);
@@ -210,5 +213,4 @@ const getUrlsForUserId = user => {
     }
   }
   return urls;
-}
-console.log(getUrlsForUserId('ds8ad4'));
+};
