@@ -68,7 +68,14 @@ app.get("/urls.json", (req, res) => {
 // Create new shortURL, redirect to shortURL
 app.post("/urls", (req, res) => {
   let shortURL = generateRandomString();
-  urlDatabase[shortURL] = { longURL: req.body.longURL, userID: req.cookies['user_id'] };
+  let longURL = req.body.longURL;
+  if (longURL === "") {
+    const templateVars = { user_id: null, email: null, message: null };
+    templateVars.message = "Please enter a url to shorten.";
+    res.statusCode = 400;
+    return res.render('error', templateVars);
+  }
+  urlDatabase[shortURL] = { longURL: longURL, userID: req.cookies['user_id'] };
   return res.redirect(`/urls/${shortURL}`);
 });
 
