@@ -166,7 +166,7 @@ app.post('/register', (req, res) => {
     newId = generateRandomString();
     users[newId] = { id: newId, email: req.body.email, password: req.body.password }
     res.cookie("user_id", newId);
-  } else { //
+  } else { //email exists
     return res.status(403).send('Account exists. Please login.');
   }
   res.redirect('/urls');
