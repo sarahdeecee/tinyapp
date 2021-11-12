@@ -12,9 +12,9 @@ TinyApp is a full stack web application built with Node and Express that allows 
 
 !["A screenshot of the login page"](docs/login-page.png)
 
-!["A screenshot of all the user's created URLs](docs/index-page.png)
+!["A screenshot of all the user's created URLs](docs/urls-page.png)
 
-!["A screenshot of a user's user-accesible-only edit page"](docs/urls-page.png)
+!["A screenshot of a user's user-accesible-only edit page"](docs/edit-page.png)
 
 ## Features
 
