@@ -38,7 +38,7 @@ app.get("/urls", (req, res) => {
   const templateVars = {
     urls: getUrlsForUserId(req.session.user_id, urlDatabase),
     user_id: req.session.user_id,
-    email: getEmailFromId(req.session.user_id)
+    email: getEmailFromId(req.session.user_id, users)
   };
   return res.render("urls_index", templateVars);
 });
@@ -65,7 +65,7 @@ app.post("/urls", (req, res) => {
 // Create New URL page
 app.get("/urls/new", (req, res) => {
   (req.session.user_id) ? null : res.redirect('/login');
-  const templateVars = { user_id: req.session.user_id, email: getEmailFromId(req.session.user_id) };
+  const templateVars = { user_id: req.session.user_id, email: getEmailFromId(req.session.user_id, users) };
   return res.render("urls_new", templateVars);
 });
 
@@ -77,7 +77,7 @@ app.get("/urls/:shortURL", (req, res) => {
     shortURL: shortURL,
     longURL: urlDatabase[shortURL].longURL,
     user_id: req.session.user_id,
-    email: getEmailFromId(req.session.user_id)
+    email: getEmailFromId(req.session.user_id, users)
   };
   return res.render("urls_show", templateVars);
 });
@@ -127,6 +127,7 @@ app.post('/login', (req, res) => {
   let id = getUserByEmail(req.body.email, users);
   if (!id) { //not found
     templateVars.message = "Email not found. Please register for an account.";
+    templateVars.email = null;
     res.statusCode = 400;
     return res.render('error', templateVars);
   } else if (!checkPassword(id, req.body.password, users)) {
@@ -140,7 +141,7 @@ app.post('/login', (req, res) => {
 
 // login page
 app.get('/login', (req, res) => {
-  const templateVars = { user_id: req.session.user_id, email: getEmailFromId(req.session.user_id) };
+  const templateVars = { user_id: req.session.user_id, email: getEmailFromId(req.session.user_id, users) };
   return res.render('login', templateVars);
 });
 
@@ -159,7 +160,7 @@ app.get("/register", (req, res) => {
 
 //register a new user
 app.post('/register', (req, res) => {
-  const templateVars = { user_id:null, email: null, message: null};
+  const templateVars = { user_id: null, email: null, message: null};
   if (req.body.email === "") {
     templateVars.message = "Please enter an email address.";
     res.statusCode = 400;
@@ -173,11 +174,11 @@ app.post('/register', (req, res) => {
   if (!id) { //new user
     const newId = generateRandomString();
     const hashedPassword = bcrypt.hashSync(req.body.password, 10);
-    console.log(hashedPassword);
     users[newId] = { id: newId, email: req.body.email, password: hashedPassword };
     req.session.user_id = newId;
   } else { //email exists
     templateVars.message = 'Account already exists. Please login instead.';
+    templateVars.email = null;
     res.statusCode = 400;
     return res.render('error', templateVars);
   }

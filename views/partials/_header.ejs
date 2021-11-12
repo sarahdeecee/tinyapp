@@ -11,10 +11,11 @@
       </div>
       <div class="navbar-nav ml-auto">
         <% if(!user_id){ %>
-          <a class="nav-item nav-link" href="/register">Register an Account</a>
+          <a class="nav-item nav-link" href="/register">Register</a>
+          <span class="navbar-text">or</span>
           <a class="nav-item nav-link" href="/login">Login</a>
         <% } else { %>
-          <form class="form" method="POST" action="/logout">Welcome back, <strong><%= email %></strong>!<button class="btn btn-light" type="submit" style="margin-left: 1em;">Logout</button></form>
+          <form class="form" method="POST" action="/logout"><span class="navbar-dark">Welcome back, <strong><%= email %></strong>!</span><button class="btn btn-light" type="submit" style="margin-left: 1em;">Logout</button></form>
         <% } %>
       </div>
     </div>

@@ -19,7 +19,7 @@ const getUserByEmail = (email, database) => {
       return user;
     }
   }
-  return null;
+  return undefined;
 };
 
 const checkPassword = (id, password, userdb) => {
