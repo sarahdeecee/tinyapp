@@ -6,7 +6,8 @@ const cookieParser = require('cookie-parser');
 const bcrypt = require('bcryptjs');
 const users = require("./data/userdb");
 app.use(bodyParser.urlencoded({extended: true}));
-app.use(cookieParser());
+const cookieSession = require('cookie-session');
+
 // const {
 //   findUserByEmail,
 //   checkPassword,
