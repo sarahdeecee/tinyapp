@@ -187,7 +187,9 @@ app.post('/register', (req, res) => {
   let id = findUserByEmail(req.body.email);
   if (!id) { //new user
     const newId = generateRandomString();
-    users[newId] = { id: newId, email: req.body.email, password: req.body.password };
+    const hashedPassword = bcrypt.hashSync(req.body.password, 10);
+    console.log(hashedPassword);
+    users[newId] = { id: newId, email: req.body.email, password: hashedPassword };
     res.cookie("user_id", newId);
   } else { //email exists
     templateVars.message = 'Account already exists. Please login instead.';
@@ -220,10 +222,11 @@ const findUserByEmail = email => {
 };
 
 const checkPassword = (id, password) => {
-  if (password === users[id].password) {
-    return true;
-  }
-  return false;
+  return bcrypt.compareSync(password, users[id].password);
+  // if (password === users[id].password) {
+  //   return true;
+  // }
+  // return false;
 };
 
 const getEmailFromId = user_id => {
