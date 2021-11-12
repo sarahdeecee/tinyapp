@@ -7,7 +7,7 @@ const users = require("./data/userdb");
 const urlDatabase = require("./data/urldb");
 app.use(bodyParser.urlencoded({extended: true}));
 const cookieSession = require('cookie-session');
-const { 
+const {
   generateRandomString,
   getUserByEmail,
   checkPassword,
@@ -20,8 +20,6 @@ app.use(cookieSession({
   name: 'session',
   keys: ["this tinyapp", "is super secure"],
 }));
-
-
 
 // set homepage to /urls/new
 app.get("/", (req, res) => {
@@ -71,8 +69,13 @@ app.get("/urls/new", (req, res) => {
 
 // new URL created
 app.get("/urls/:shortURL", (req, res) => {
-  (req.session.user_id) ? null : res.redirect('/login');
   const shortURL = req.params.shortURL;
+  if (!req.session.user_id) {
+    return res.redirect('/login');
+  } else if (req.session.user_id !== urlDatabase[shortURL].userID) {
+    const templateVars = { user_id: req.session.user_id, email: getEmailFromId(req.session.user_id, users), message: null };
+    return res.render('noaccess', templateVars);
+  }
   const templateVars = {
     shortURL: shortURL,
     longURL: urlDatabase[shortURL].longURL,
@@ -85,7 +88,9 @@ app.get("/urls/:shortURL", (req, res) => {
 // update URL
 app.post("/urls/:shortURL", (req, res) => {
   const shortURL = req.params.shortURL;
-  (req.session.user_id === urlDatabase[shortURL].userID) ? null : res.render('noaccess');
+  if (!req.session.user_id || req.session.user_id !== urlDatabase[shortURL].userID) {
+    return res.render('noaccess');
+  }
   const newLongURL = req.body.longURL;
   urlDatabase[shortURL].longURL = newLongURL;
   return res.redirect('/urls');
@@ -99,6 +104,11 @@ app.post("/urls/:shortURL/delete", (req, res) => {
   }
   delete urlDatabase[shortURL];
   return res.redirect('/urls');
+});
+
+app.get("/urls/:shortURL/delete", (req, res) => {
+  const templateVars = { user_id: null, email: null, message: null };
+  return res.render('noaccess', templateVars);
 });
 
 // redirect to shortURL
@@ -141,6 +151,9 @@ app.post('/login', (req, res) => {
 
 // login page
 app.get('/login', (req, res) => {
+  if (req.session.user_id) {
+    return res.redirect('/urls');
+  }
   const templateVars = { user_id: req.session.user_id, email: getEmailFromId(req.session.user_id, users) };
   return res.render('login', templateVars);
 });
@@ -148,12 +161,14 @@ app.get('/login', (req, res) => {
 // logout
 app.post('/logout', (req, res) => {
   req.session = null;
-  // res.clearCookie('user_id');
   return res.redirect('/urls');
 });
 
 // register page
 app.get("/register", (req, res) => {
+  if (req.session.user_id) {
+    return res.redirect('/urls');
+  }
   const templateVars = { user_id: req.session.user_id };
   res.render('register', templateVars);
 });
