@@ -3,10 +3,22 @@ const app = express();
 const PORT = 8080;
 const bodyParser = require("body-parser");
 const cookieParser = require('cookie-parser');
+const bcrypt = require('bcryptjs');
+const users = require("./data/userdb");
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieParser());
-
+// const {
+//   findUserByEmail,
+//   checkPassword,
+//   getUrlsForUserId,
+//   getEmailFromId
+// } = require('./helpers/user-helpers');
 app.set("view engine", "ejs");
+
+// const hashPassword = (password) => {
+//   console.log(`test:\n${bcrypt.hashSync('123', 10)}`)
+//   return bcrypt.hashSync(password, 10);
+// };
 
 const urlDatabase = {
   b6UTxQ: {
@@ -24,19 +36,6 @@ const urlDatabase = {
   s9m5xK: {
     longURL: "http://www.google.com",
     userID: 'ds8ad4'
-  }
-};
-
-const users = {
-  "aJ48lW": {
-    id: "aJ48lW",
-    email: "user@example.com",
-    password: "123"
-  },
-  "ds8ad4": {
-    id: "ds8ad4",
-    email: "user2@example.com",
-    password: "qwe"
   }
 };
 
@@ -221,7 +220,7 @@ const findUserByEmail = email => {
 };
 
 const checkPassword = (id, password) => {
-  if (users[id].password === password) {
+  if (password === users[id].password) {
     return true;
   }
   return false;
