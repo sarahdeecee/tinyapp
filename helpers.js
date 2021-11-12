@@ -1,24 +1,36 @@
-const findUserByEmail = email => {
-  for (let id in users) {
-    if (users[id].email === email) {
-      return id;
+const bcrypt = require('bcryptjs');
+
+const generateRandomString = () => {
+  let randomStr = "";
+  let passLength = 6;
+  for (let i = 0; i < passLength; i++) {
+    let randomNum = Math.floor(Math.random() * 36) + 48;
+    if (randomNum >= 58) {
+      randomNum += 7;
+    }
+    randomStr += String.fromCharCode(randomNum);
+  }
+  return randomStr.toLowerCase();
+};
+
+const getUserByEmail = (email, database) => {
+  for (let user in database) {
+    if (database[user].email === email) {
+      return user;
     }
   }
   return null;
 };
 
-const checkPassword = (id, password) => {
-  if (users[id].password === password) {
-    return true;
-  }
-  return false;
+const checkPassword = (id, password, userdb) => {
+  return bcrypt.compareSync(password, userdb[id].password);
 };
 
-const getEmailFromId = user_id => {
-  return (users[user_id]) ? users[user_id].email : null;
+const getEmailFromId = (user_id, userdb) => {
+  return (userdb[user_id]) ? userdb[user_id].email : null;
 };
 
-const getUrlsForUserId = user => {
+const getUrlsForUserId = (user, urlDatabase) => {
   const urls = [];
   for (let shortUrl in urlDatabase) {
     if (urlDatabase[shortUrl].userID === user) {
@@ -28,4 +40,10 @@ const getUrlsForUserId = user => {
   return urls;
 };
 
-module.exports = { findUserByEmail, checkPassword, getUrlsForUserId, getEmailFromId };
+module.exports = {
+  generateRandomString,
+  getUserByEmail,
+  checkPassword,
+  getEmailFromId,
+  getUrlsForUserId
+};

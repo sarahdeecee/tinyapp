@@ -4,55 +4,24 @@ const PORT = 8080;
 const bodyParser = require("body-parser");
 const bcrypt = require('bcryptjs');
 const users = require("./data/userdb");
+const urlDatabase = require("./data/urldb");
 app.use(bodyParser.urlencoded({extended: true}));
 const cookieSession = require('cookie-session');
+const { 
+  generateRandomString,
+  getUserByEmail,
+  checkPassword,
+  getEmailFromId,
+  getUrlsForUserId
+} = require('./helpers');
 
-// const {
-//   getUserByEmail,
-//   checkPassword,
-//   getUrlsForUserId,
-//   getEmailFromId
-// } = require('./helpers/user-helpers');
 app.set("view engine", "ejs");
 app.use(cookieSession({
   name: 'session',
   keys: ["this tinyapp", "is super secure"],
-}))
+}));
 
-// const cookieCheck = (req, res, next) => {
-//   // const { email } = req.cookies;
-//   const { email } = req.session;
-//   const safeList = ["/", "/login"];
-//   const isSafe = safeList.includes(req.path);
-//   // Fetch user information based on the value of the cookie
-//   const { data, error } = fetchUserInformation(userDB, email);
 
-//   if (error && !isSafe) {
-//     console.log(error);
-//     return res.redirect("/");
-//   }
-
-//   return next();
-// };
-
-const urlDatabase = {
-  b6UTxQ: {
-    longURL: "https://www.tsn.ca",
-    userID: "aJ48lW"
-  },
-  i3BoGr: {
-    longURL: "https://www.google.ca",
-    userID: "aJ48lW"
-  },
-  b2xVn2: {
-    longURL: "http://www.lighthouselabs.ca",
-    userID: 'ds8ad4'
-  },
-  s9m5xK: {
-    longURL: "http://www.google.com",
-    userID: 'ds8ad4'
-  }
-};
 
 // set homepage to /urls/new
 app.get("/", (req, res) => {
@@ -67,7 +36,7 @@ app.listen(PORT, () => {
 app.get("/urls", (req, res) => {
   (req.session.user_id) ? null : res.redirect('/login');
   const templateVars = {
-    urls: getUrlsForUserId(req.session.user_id),
+    urls: getUrlsForUserId(req.session.user_id, urlDatabase),
     user_id: req.session.user_id,
     email: getEmailFromId(req.session.user_id)
   };
@@ -160,7 +129,7 @@ app.post('/login', (req, res) => {
     templateVars.message = "Email not found. Please register for an account.";
     res.statusCode = 400;
     return res.render('error', templateVars);
-  } else if (!checkPassword(id, req.body.password)) {
+  } else if (!checkPassword(id, req.body.password, users)) {
     templateVars.message = "Password is incorrect. Please try again.";
     res.statusCode = 401;
     return res.render('error', templateVars);
@@ -214,43 +183,3 @@ app.post('/register', (req, res) => {
   }
   return res.redirect('/urls');
 });
-
-const generateRandomString = () => {
-  let randomStr = "";
-  let passLength = 6;
-  for (let i = 0; i < passLength; i++) {
-    let randomNum = Math.floor(Math.random() * 36) + 48;
-    if (randomNum >= 58) {
-      randomNum += 7;
-    }
-    randomStr += String.fromCharCode(randomNum);
-  }
-  return randomStr.toLowerCase();
-};
-
-const getUserByEmail = (email, database) => {
-  for (let user in database) {
-    if (database[user].email === email) {
-      return user;
-    }
-  }
-  return null;
-};
-
-const checkPassword = (id, password) => {
-  return bcrypt.compareSync(password, users[id].password);
-};
-
-const getEmailFromId = user_id => {
-  return (users[user_id]) ? users[user_id].email : null;
-};
-
-const getUrlsForUserId = user => {
-  const urls = [];
-  for (let shortUrl in urlDatabase) {
-    if (urlDatabase[shortUrl].userID === user) {
-      urls.push({shortURL: shortUrl, longURL: urlDatabase[shortUrl].longURL});
-    }
-  }
-  return urls;
-};
