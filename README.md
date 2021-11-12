@@ -18,9 +18,9 @@ TinyApp is a full stack web application built with Node and Express that allows 
 
 ## Features
 
-- Stick a URL into TinyApp and you'll get a unique Tiny URL!
+- Stick any URL into TinyApp and you'll get a unique Tiny URL that goes to the same place!
 
-- You'll be able to see all your created links on our 'My URLs' page.
+- You'll be able to see all your created links on your 'My URLs' page.
 
 - Anyone can use your Tiny URL link, but only you can edit or delete it!
 
